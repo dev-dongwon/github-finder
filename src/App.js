@@ -13,8 +13,9 @@ class App extends Component {
   state = {
     users: [],
     user: {},
+    repos: [],
     loading: false,
-    alert: null
+    alert: null,
   };
 
   // 검색 결과에 따라 유저 목록 가져오기
@@ -43,6 +44,19 @@ class App extends Component {
     this.setState({ user: res.data, loading: false });
   };
 
+  // 유저 repo 가져오기
+  getUserRepos = async username => {
+    this.setState({ loading: true });
+
+    const res = await axios.get(
+      `https://api.github.com/users/${username}/repos?per_page=5&sort=created:asc&client_id=${
+        process.env.REACT_APP_GITHUB_CLIENT_ID
+      }&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
+    );
+
+    this.setState({ repos: res.data, loading: false });
+  };
+
   // state에서 user 목록 비우기
   clearUsers = () => {
     this.setState({ users: [], loading: false });
@@ -58,7 +72,7 @@ class App extends Component {
   };
 
   render() {
-    const { users, user, loading } = this.state;
+    const { users, user, repos, loading } = this.state;
 
     return (
       <Router>
@@ -90,7 +104,9 @@ class App extends Component {
                   <User
                     {...props}
                     getUser={this.getUser}
+                    getUserRepos={this.getUserRepos}
                     user={user}
+                    repos={repos}
                     loading={loading}
                   />
                 )}
